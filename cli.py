@@ -5,6 +5,11 @@ import os
 LOGS_DIR = "logs"
 LOG_FILE = os.path.join(LOGS_DIR, "database.csv")
 
+def log_game(move_history, winner):
+    with open('game_logs.csv', mode='a', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(move_history + [winner])
+
 def print_board(board):
     for row in board:
         print(" | ".join([cell if cell else " " for cell in row]))
@@ -27,12 +32,14 @@ def main():
     board = make_empty_board()
     player = 'X'
     winner = None
+    move_history = []
 
     while not winner:
         print_board(board)
         print(f"Player {player}'s turn.")
 
         row, col = get_user_move()
+        move_history.append((row, col))
 
         if board[row][col] is not None:
             print("Cell already taken. Try again.")
@@ -45,10 +52,12 @@ def main():
             record_winner(winner)
             print_board(board)
             print(f"Player {winner} wins!")
+            log_game(move_history, winner)
         elif all(all(cell for cell in row) for row in board):
             record_winner("Draw")
             print_board(board)
             print("It's a draw!")
+            log_game(move_history, "Draw")
             break
         else:
             player = other_player(player)
